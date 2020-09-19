@@ -1,0 +1,1 @@
+. $psScriptRoot\Resize-VMDrive.ps1
