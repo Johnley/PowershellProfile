@@ -1,28 +1,44 @@
-
+if (Test-Path "$PSScriptRoot\config.json") {
+    $settings = Get-Content -Path "$PSScriptRoot\config.json" | ConvertFrom-Json
+}
+else {
+    $properties = @{
+        admin_id           = ''
+        store_admin_id     = $false
+        info_preference    = "SilentlyContinue"
+        vmware_server      = "sw72vmvc1"
+        vmware_autoconnect = $false
+    }
+    $settings = New-Object psobject -Property $properties
+    $settings | ConvertTo-Json -depth 100 | Out-File "$PSScriptRoot\config.json"
+    
+}
 
 $settings = Get-Content -Path "$PSScriptRoot\config.json" | ConvertFrom-Json
 $InformationPreference = $settings.info_preference
 Write-Information "Settings Loaded."
 
-Import-Module ShawUtil
+Import-Module JohnUtil
 
 Write-Information "Prompting for Admin ID..."
-if(!$settings.admin_id){
+if (!$settings.admin_id) {
     $admcred = Get-Credential -Message 'Please provide your admin ID. This will be stored in the variable $admcred for future use.'
     Write-Information 'Credential $admcred created.'
     $settings.admin_id = $admcred.UserName
     $settings | ConvertTo-Json -depth 100 | Out-File "$PSScriptRoot\config.json"
     Write-Information "Admin Username saved."
-    if($settings.store_admin_id){
+    if ($settings.store_admin_id) {
         $admcred | Export-CliXml -Path "$PSScriptRoot\admcred.xml"
     }
-} else {
+}
+else {
     #check if we have a credential
-    if(Test-Path -Path "$PSScriptRoot\admcred.xml"){
+    if (Test-Path -Path "$PSScriptRoot\admcred.xml") {
         $admcred = Import-Clixml -Path "$PSScriptRoot\admcred.xml"
-    } else {
+    }
+    else {
         $admcred = Get-Credential -UserName $settings.admin_id -Message 'Please provide your admin ID. This will be stored in the variable $admcred for future use.'
-        if($settings.store_admin_id){
+        if ($settings.store_admin_id) {
             $admcred | Export-CliXml -Path "$PSScriptRoot\admcred.xml"
         }
     }
@@ -30,10 +46,10 @@ if(!$settings.admin_id){
     Write-Information 'Credential $admcred created.'
 }
 
-if($settings.vmware_autoconnect){
+if ($settings.vmware_autoconnect) {
     Set-PowerCLIConfiguration -Scope User -ParticipateInCEIP $false -Confirm:$false | Out-Null
     Write-Output "Connecting to vSphere..."
-    Connect-VIServer sw72vmvc1 -AllLinked -Credential $admcred | Out-Null
+    Connect-VIServer $settings.vmware_server -AllLinked -Credential $admcred | Out-Null
     Write-Output "Connected."
 }
 
