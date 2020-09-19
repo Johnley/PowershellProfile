@@ -14,11 +14,11 @@ Function Get-ComputerMemoryUsage {
     }
     PROCESS {
         # Memory utilization
-        $ComputerMemory = Get-WmiObject -Class WIN32_OperatingSystem -ComputerName $ComputerName -Credential $admcred
+        $ComputerMemory = Get-WmiObject -Class WIN32_OperatingSystem -ComputerName $ComputerName -Credential $Global:admcred
         $Memory = ((($ComputerMemory.TotalVisibleMemorySize - $ComputerMemory.FreePhysicalMemory) * 100) / $ComputerMemory.TotalVisibleMemorySize)
 
         # Top process
-        $TopMem = Get-WmiObject WIN32_PROCESS -ComputerName $ComputerName -Credential $admcred | Sort-Object -Property ws -Descending | Select-Object -first 1 processname, @{Name = "Mem Usage(MB)"; Expression = { [math]::round($_.ws / 1mb) } }, @{Name = "UserID"; Expression = { $_.getowner().user } }
+        $TopMem = Get-WmiObject WIN32_PROCESS -ComputerName $ComputerName -Credential $Global:admcred | Sort-Object -Property ws -Descending | Select-Object -first 1 processname, @{Name = "Mem Usage(MB)"; Expression = { [math]::round($_.ws / 1mb) } }, @{Name = "UserID"; Expression = { $_.getowner().user } }
 
         If ($TopMem -and $ComputerMemory) {
             $ProcessName = $TopMem.ProcessName
