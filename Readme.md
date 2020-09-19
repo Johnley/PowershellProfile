@@ -1,6 +1,6 @@
 # John's Powershell Toolkit
 
-The tools of the guy that despises RDP.
+The tools of the guy that despises RDP. See the [Cmdlet Glossary](CmdletGlossary.md) for in-terminal usage.
 
 ## Installing
 
