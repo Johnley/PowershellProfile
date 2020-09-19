@@ -34,7 +34,7 @@ Gets the users that are RDP'd or Consoled into a computer.
 
 ### Example
 
-`GetLoggedOnUsers.ps1 sw72comctrps`
+`GetLoggedOnUsers sw72comctrps`
 
 Output:
 
