@@ -2,24 +2,27 @@ Function Resize-VMDrive {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, 
-                    HelpMessage = "Name of the VM to grow drives on")]
+            Position = 0,
+            HelpMessage = "Name of the VM to grow drives on")]
         [String]$ComputerName,
         [Parameter(Mandatory = $true, 
-                    HelpMessage = "Drive Letter on the VM to grow.")]
+            Position = 1,
+            HelpMessage = "Drive Letter on the VM to grow.")]
         [String]$DriveLetter,
         [Parameter(Mandatory = $true, 
-                    HelpMessage = "Amount (in GB) to grow the disk")]
+            Position = 2,
+            HelpMessage = "Amount (in GB) to grow the disk")]
         [int]$AddGB
     )
-    BEGIN{
+    BEGIN {
         #Check if we're connected to vSphere
-        if(!$Global:DefaultVIServers){
+        if (!$Global:DefaultVIServers) {
             Write-Error "Not connected to vSphere! Please run Connect-ViServer first."
             break
         }
 
         #Check for admin creds
-        if(!$Global:admcred){
+        if (!$Global:admcred) {
             Write-Error 'Please set $admcred!'
             break
         }
@@ -29,18 +32,18 @@ Function Resize-VMDrive {
         $vm = Get-VM $ComputerName
 
         #check that the remote host is running a non-garbage version of powershell
-        $winversion = Invoke-Command -ScriptBlock {(Get-WmiObject Win32_OperatingSystem).Version} -Session $s
-        if($winversion -lt 6.2){
+        $winversion = Invoke-Command -ScriptBlock { (Get-WmiObject Win32_OperatingSystem).Version } -Session $s
+        if ($winversion -lt 6.2) {
             Write-Error "Server is over a decade old, you're gonna have to do this one manually."
             break
         }
     }
-    PROCESS{
+    PROCESS {
         $s = New-PSSession -ComputerName $ComputerName -Credential $Global:admcred
         $vm = Get-VM $ComputerName
 
         #Get the disk number from Windows
-        $partition = Invoke-Command -ScriptBlock {param($dl);  Get-Partition -DriveLetter $dl} -ArgumentList $DriveLetter  -Session $s
+        $partition = Invoke-Command -ScriptBlock { param($dl); Get-Partition -DriveLetter $dl } -ArgumentList $DriveLetter  -Session $s
 
         #Convert windows disk to vmware disk
         $vmpartition = $partition.DiskNumber + 1
@@ -57,10 +60,10 @@ Function Resize-VMDrive {
         Start-Sleep -s 5
 
         #Grow the disk in Windows
-        Invoke-Command -ScriptBlock {param($dn); Update-Disk -Number $dn} -ArgumentList $partition.DiskNumber -Session $s
-        Invoke-Command -ScriptBlock {param($dl); Resize-Partition -DriveLetter $dl -Size (Get-PartitionSupportedSize -DriveLetter $dl).SizeMax} -ArgumentList $DriveLetter -Session $s
-        $resizeddisk = Invoke-Command -ScriptBlock {param($dn); Get-Disk -Number $dn} -ArgumentList $partition.DiskNumber -Session $s
-        $newdisksize = $resizeddisk.Size/1GB
+        Invoke-Command -ScriptBlock { param($dn); Update-Disk -Number $dn } -ArgumentList $partition.DiskNumber -Session $s
+        Invoke-Command -ScriptBlock { param($dl); Resize-Partition -DriveLetter $dl -Size (Get-PartitionSupportedSize -DriveLetter $dl).SizeMax } -ArgumentList $DriveLetter -Session $s
+        $resizeddisk = Invoke-Command -ScriptBlock { param($dn); Get-Disk -Number $dn } -ArgumentList $partition.DiskNumber -Session $s
+        $newdisksize = $resizeddisk.Size / 1GB
         Write-Host -ForegroundColor Green "Disk grown by $AddGB GB, new disk size is $newdisksize GB."
     }
 }
