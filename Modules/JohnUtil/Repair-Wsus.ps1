@@ -4,7 +4,11 @@ Function Repair-Wsus {
         [Parameter(Mandatory = $true, 
             Position = 0,
             HelpMessage = "Name of the computer to repair WSUS on.")]
-        [String]$ComputerName
+        [String]$ComputerName,
+        [Parameter(Mandatory = $true, 
+            Position = 1, 
+            HelpMessage = "Wsus Server URL")]
+        [String]$WsusUrl
     )
     BEGIN {
         if (!(Test-Connection $ComputerName -Count 1 -Quiet)) {
@@ -14,8 +18,8 @@ Function Repair-Wsus {
     }
     PROCESS {
         $script = {
-            Set-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\ -Name "WUServer" -Value "http://wsus.shawinc.com"
-            Set-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\ -Name "WUStatusServer" -Value "http://wsus.shawinc.com"
+            Set-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\ -Name "WUServer" -Value $WsusUrl
+            Set-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\ -Name "WUStatusServer" -Value $WsusUrl
             Set-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU\ -Name "UseWUServer" -Value 1
             Get-Service wuauserv | Restart-Service
         }
