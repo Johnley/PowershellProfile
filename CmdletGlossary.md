@@ -60,7 +60,7 @@ repairs the registry entries for a remote server and restarts windows update. us
 
 ### Example
 
-`Repair-Wsus sw72comctrps`
+`Repair-Wsus sw72comctrps wsus.shawinc.com`
 
 Output:
 
