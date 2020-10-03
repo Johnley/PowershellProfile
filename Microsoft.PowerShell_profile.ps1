@@ -6,7 +6,7 @@ else {
         admin_id           = ''
         store_admin_id     = $false
         info_preference    = "SilentlyContinue"
-        vmware_server      = "sw72vmvc1"
+        vmware_server      = ""
         vmware_autoconnect = $false
     }
     $settings = New-Object psobject -Property $properties
