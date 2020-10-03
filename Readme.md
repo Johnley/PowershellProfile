@@ -4,7 +4,7 @@ The tools of the guy that despises RDP. See the [Cmdlet Glossary](CmdletGlossary
 
 ## Installing
 
-Download the latest [release](<https://git.shawinc.com/jconley/PowershellProfile/releases>). Unzip the contents of "powershellprofile" into your Documents/WindowsPowershell folder, then restart your powershell instances.
+Download the latest release. Unzip the contents of "powershellprofile" into your Documents/WindowsPowershell folder, then restart your powershell instances.
 
 ## Configuring
 
